@@ -84,10 +84,11 @@ function Dashboard({isDark}) {
   }, [shipments]);
 
   // ================= VARIANCE COLOR =================
-  const getColor = (projected, actual) => {
+  const getColor = (projected, actual, isDark) => {
     if (actual > projected) return "bg-success-soft ";
     if (actual < projected) return "bg-danger-soft ";
-    return "bg-gray-50 ";
+    // If equal (no variance), return theme-appropriate neutral color
+    return isDark ? "bg-zinc-950 " : "bg-gray-50 ";
   };
 
   // ================= CLICK FIX =================
@@ -147,7 +148,7 @@ function Dashboard({isDark}) {
 
   const isCurrentMonth = date.getMonth() === month;
 
-  const cellColor = getColor(data.projected, data.actual);
+  const cellColor = getColor(data.projected, data.actual, isDark);
 
   // ✅ DEFINE IT HERE (NOT INSIDE JSX)
   const hasValues = data.projected !== 0 || data.actual !== 0;
@@ -164,7 +165,7 @@ function Dashboard({isDark}) {
         hover:brightness-95
       `}
     >
-      <div className="text-xs font-semibold text-gray-700 flex justify-between">
+      <div className={`text-xs font-semibold flex justify-between ${isDark ? "text-gray-50" : "text-gray-700"}`}>
         <div>{format(date, "d")}</div>
         <div>
           ${(data.actual - data.projected).toLocaleString()}
