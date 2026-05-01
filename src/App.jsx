@@ -69,7 +69,7 @@ export default function App() {
           {/* Public Routes - Redirect to dashboard if already logged in */}
           <Route path="/login" element={
             <PublicRoute>
-              <Login />
+              <Login isDark={isDark}/>
             </PublicRoute>
           } />
 

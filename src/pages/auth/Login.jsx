@@ -4,9 +4,9 @@ import { useAppContext } from '../../context/DataContext';
 
 import { Button, Input, Card, CardHeader, CardFooter, Link } from '@heroui/react';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
-import Logom from "./../../cvhsinc.png"
+import Logom from "./../../logoin.jpeg"
 
-export default function Login() {
+export default function Login({isDark}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -48,11 +48,11 @@ console.log("data",data)
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <Card className="w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
+    <div className={`min-h-screen flex items-center justify-center ${isDark?"bg-zinc-800":""} p-6`}>
+      <Card className={`w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-gray-200  ${isDark?"border-gray-600":""}`}>
         <CardHeader className="flex flex-col items-center gap-4 pt-10 pb-0 px-8 bg-gradient-to-b from-white to-gray-50">
-          <div className="w-40 h-30 bg-primary/10 flex items-center justify-center rounded-xl p-4">
-            <img src={Logom} alt="Logo" className="max-h-24 object-contain" />
+          <div className="w-100 h-30 bg-primary/10 flex items-center justify-center rounded-xl p-4">
+            <img src={Logom} alt="Logo" className=" object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-foreground text-center">
             Welcome Back
@@ -107,15 +107,14 @@ console.log("data",data)
 
             <Button
               type="submit"
-              color="primary"
-              variant="solid"
+         
               size="lg"
               fullWidth
               radius="lg"
               isLoading={loading}
-              className="font-semibold"
+              className={`font-semibold bg-success-soft ${isDark?"text-gray-100":"text-gray-950"}`}
             >
-              <LogIn className="mr-2" size={20} />
+              <LogIn className={`mr-2  ${isDark?"text-gray-100":""}`} size={20} />
               Login
             </Button>
           </form>
