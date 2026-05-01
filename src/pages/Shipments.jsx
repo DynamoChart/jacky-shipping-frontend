@@ -54,8 +54,8 @@ export default function Shipments() {
     const fetchData = async () => {
       try {
         const [plantsRes, skusRes] = await Promise.all([
-          fetch("http://localhost:5000/api/plants"),
-          fetch("http://localhost:5000/api/skus"),
+          fetch(`${import.meta.env.VITE_API_URL}/api/plants`),
+          fetch(`${import.meta.env.VITE_API_URL}/api/skus`),
         ]);
 
         const plantsData = await plantsRes.json();
@@ -74,7 +74,7 @@ export default function Shipments() {
   }, []);
   const fetchShipments = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/shipments");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/shipments`);
       const data = await res.json();
       setShipments(data);
     } catch {
@@ -96,7 +96,7 @@ export default function Shipments() {
     console.log("SHIPMENT PAYLOAD:", payload);
 
     try {
-      const res = await fetch("http://localhost:5000/api/shipments", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/shipments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

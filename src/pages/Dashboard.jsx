@@ -32,7 +32,7 @@ function Dashboard({isDark}) {
 
   // ================= FETCH =================
   useEffect(() => {
-    fetch("http://localhost:5000/api/shipments")
+    fetch(`${import.meta.env.VITE_API_URL}/api/shipments`)
       .then((r) => r.json())
       .then(setShipments);
   }, []);

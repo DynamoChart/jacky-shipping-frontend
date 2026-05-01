@@ -33,7 +33,7 @@ export default function Items() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/skus");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/skus`);
       const data = await res.json();
       setItems(data);
       console.log("items",data)
@@ -51,7 +51,7 @@ export default function Items() {
   // ================= ADD =================
   const handleAdd = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/skus", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/skus`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -75,7 +75,7 @@ export default function Items() {
   const handleUpdate = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/skus/${selectedItem._id}`,
+        `${import.meta.env.VITE_API_URL}/api/skus/${selectedItem._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -96,7 +96,7 @@ export default function Items() {
   // ================= DELETE =================
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:5000/api/skus/${deleteId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/skus/${deleteId}`, {
         method: "DELETE",
       });
 

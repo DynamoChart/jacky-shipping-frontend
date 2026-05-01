@@ -98,7 +98,7 @@ export default function Users() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -161,7 +161,7 @@ export default function Users() {
     console.log("FINAL PAYLOAD:", payload);
   
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +185,7 @@ export default function Users() {
   const handleUpdateUser = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/auth/${selectedUser.id}`,
+        `${import.meta.env.VITE_API_URL}/api/auth/${selectedUser.id}`,
         {
           method: "PUT",
           headers: {
@@ -210,7 +210,7 @@ export default function Users() {
   const handleDeleteUser = async () => {
     try {
       await fetch(
-        `http://localhost:5000/api/auth/${deleteUserId}`,
+        `${import.meta.env.VITE_API_URL}/api/auth/${deleteUserId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

@@ -54,7 +54,7 @@ export default function BulkShipments({ onSuccess }) {
         const json = XLSX.utils.sheet_to_json(sheet);
 
         // 🔥 SEND TO BACKEND
-        const res = await fetch("http://localhost:5000/api/shipments/bulk", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/shipments/bulk`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

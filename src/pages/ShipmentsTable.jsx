@@ -91,7 +91,7 @@ export default function ShipmentsTable({ shipments , onRefresh }) {
   const handleUpdate = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/shipments/${selected._id}`,
+        `${import.meta.env.VITE_API_URL}/api/shipments/${selected._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -117,7 +117,7 @@ export default function ShipmentsTable({ shipments , onRefresh }) {
   // ================= DELETE =================
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:5000/api/shipments/${deleteId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/shipments/${deleteId}`, {
         method: "DELETE",
       });
 

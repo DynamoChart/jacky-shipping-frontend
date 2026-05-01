@@ -55,7 +55,7 @@ export default function Plant() {
   const fetchPlants = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/plants");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/plants`);
       const data = await res.json();
 
       const formatted = data.map((p) => ({
@@ -100,7 +100,7 @@ export default function Plant() {
   const handleAdd = async () => {
     console.log("palnt submited",form)
     try {
-      const res = await fetch("http://localhost:5000/api/plants", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/plants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -120,7 +120,7 @@ export default function Plant() {
   const handleUpdate = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/plants/${selectedPlant.id}`,
+        `${import.meta.env.VITE_API_URL}/api/plants/${selectedPlant.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -141,7 +141,7 @@ export default function Plant() {
   // ================= DELETE =================
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:5000/api/plants/${deleteId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/plants/${deleteId}`, {
         method: "DELETE",
       });
 

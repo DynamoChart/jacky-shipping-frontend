@@ -42,7 +42,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const regRes = await fetch('http://localhost:5000/api/auth/register', {
+      const regRes = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -53,7 +53,7 @@ export default function Register() {
       if (!regRes.ok) throw new Error(regData.message || 'Registration failed');
 
       // Auto Login after successful registration
-      const loginRes = await fetch('http://localhost:5000/api/auth/login', {
+      const loginRes = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email, password: formData.password }),
