@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-
-import { Chip, Drawer, Card, Button } from "@heroui/react";
-import { ArrowShapeLeft, ArrowShapeRight } from "@gravity-ui/icons";
+import { ChartPie,Factory } from "lucide-react";
+import { Chip, Drawer, Card, Button,Label } from "@heroui/react";
+import { ArrowShapeLeft, ArrowShapeRight,File,PersonSpeaker,Trolley} from "@gravity-ui/icons";
 import {
   format,
   startOfMonth,
@@ -237,18 +237,31 @@ function Dashboard({isDark}) {
               <div className="grid grid-cols-1 gap-1">
                 {filtered.map((s) => (
                   <Card key={s._id} className="p-4 border">
-                    <div className="font-bold">{s.customer} <Chip color={statusColorMap[s.status]} variant="soft">
-              {s.status}
-            </Chip> <Chip variant="soft" color="danger">
+                  
+                  <div className="font-bold">
+                    
+                  <PersonSpeaker size={12} className="inline-block -mt-1 mr-1" />{s.customer} <File size={12} className="inline-block -mt-1 ml-1" /> SAP:{s.sapPart} 
+                    <Trolley size={16} className="inline-block -mt-1 mr-1 ml-1" />{s.carrier && s.carrier.trim() ? s.carrier : "No Carrier"}
+                    <div className="mb-2">
+                  
+                    <ChartPie size={16} className="inline-block  mr-1 " />
+                    <Chip color={statusColorMap[s.status]} variant="soft">
+                   {s.status}
+                    </Chip> 
+                     <Factory size={18} className="inline-block  mr-1 ml-1 " />
+                    <Chip variant="soft" color="danger">
                       {s.plant}
-                    </Chip></div>
-<div className="flex justify-between">
+                    </Chip>
+                    </div>
+                  </div>
+<div className="flex flex-col -mt-3">
 
-
+<Label>Description</Label>
+{s.description}
                    
                    
                     </div>
-                    <div className="mt-2 text-sm">
+                    <div className="mt-0 text-sm">
                       <div>
                         P: $
                         {(s.projectedQty * s.price || 0).toLocaleString()}
