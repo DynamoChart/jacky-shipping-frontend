@@ -85,8 +85,9 @@ function Dashboard({isDark}) {
 
   // ================= VARIANCE COLOR =================
   const getColor = (projected, actual, isDark) => {
-    if (actual > projected) return "bg-success-soft ";
-    if (actual < projected) return "bg-danger-soft ";
+    if (actual > projected) return isDark ? "bg-[#63a672] " : "bg-success-soft ";
+    if (actual < projected) return  isDark ? "bg-[#f2a7ae] " : "bg-danger-soft ";
+    if (actual = projected) return  isDark ? "bg-blue-200 " : "bg-blue-200 ";
     // If equal (no variance), return theme-appropriate neutral color
     return isDark ? "bg-zinc-950 " : "bg-gray-50 ";
   };
@@ -111,7 +112,7 @@ function Dashboard({isDark}) {
 
   return (
     <div className="p-4">
-<KpiDash shipments={shipments} />
+<KpiDash shipments={shipments} isDark={isDark}/>
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
@@ -133,12 +134,16 @@ function Dashboard({isDark}) {
 
         {/* HEADER */}
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div
-            key={d}
-            className="bg-[#F9C97C] text-center text-xs font-semibold py-2"
-          >
-            {d}
-          </div>
+         <div
+         key={d}
+         className={`text-center text-xs font-semibold py-2 ${
+           isDark 
+             ? "bg-[#784923] text-white" 
+             : "bg-[#F9C97C] text-black"
+         }`}
+       >
+         {d}
+       </div>
         ))}
 
         {/* CELLS */}
@@ -165,7 +170,7 @@ function Dashboard({isDark}) {
         hover:brightness-95
       `}
     >
-      <div className={`text-xs font-semibold flex justify-between ${isDark ? "text-gray-50" : "text-gray-700"}`}>
+      <div className={`text-xs font-semibold flex justify-between ${isDark ? "text-gray-800" : "text-gray-700"}`}>
         <div>{format(date, "d")}</div>
         <div>
           ${(data.actual - data.projected).toLocaleString()}
@@ -174,7 +179,7 @@ function Dashboard({isDark}) {
 
       {/* ✅ NOW THIS WORKS */}
       {hasValues && (
-        <div className="text-[11px] mt-2 space-y-1">
+        <div className="text-[14px] mt-2 space-y-1">
           <div className="text-blue-700 font-medium">
             P: ${data.projected.toLocaleString()}
           </div>
@@ -231,16 +236,16 @@ function Dashboard({isDark}) {
             return (
               <div className="grid grid-cols-1 gap-1">
                 {filtered.map((s) => (
-                  <Card key={s._id} className="p-4">
-                    <div className="font-bold">{s.customer}</div>
+                  <Card key={s._id} className="p-4 border">
+                    <div className="font-bold">{s.customer} <Chip color={statusColorMap[s.status]} variant="soft">
+              {s.status}
+            </Chip> <Chip variant="soft" color="danger">
+                      {s.plant}
+                    </Chip></div>
 <div className="flex justify-between">
 
-<Chip color={statusColorMap[s.status]} variant="soft">
-              {s.status}
-            </Chip>
-                    <Chip variant="soft" color="danger">
-                      {s.plant}
-                    </Chip>
+
+                   
                    
                     </div>
                     <div className="mt-2 text-sm">

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../context/DataContext';
 
-import { Button, Input, Card, CardHeader, CardFooter, Link } from '@heroui/react';
+import { Button, Input, Card, CardHeader, CardFooter, Link,Label } from '@heroui/react';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import Logom from "./../../logoin.jpeg"
-
+import Logom2 from "./../../rlogo.png"
 export default function Login({isDark}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,12 +48,16 @@ console.log("data",data)
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center ${isDark?"bg-zinc-800":""} p-6`}>
-      <Card className={`w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-gray-200  ${isDark?"border-gray-600":""}`}>
-        <CardHeader className="flex flex-col items-center gap-4 pt-10 pb-0 px-8 bg-gradient-to-b from-white to-gray-50">
-          <div className="w-100 h-30 bg-primary/10 flex items-center justify-center rounded-xl p-4">
-            <img src={Logom} alt="Logo" className=" object-contain" />
-          </div>
+    <div className={`min-h-screen flex items-center justify-center ${isDark?"bg-zinc-900":""} p-6`}>
+      <Card className={`w-full max-w-md shadow-2xl  rounded-2xl overflow-hidden border border-gray-200 ${isDark?"bg-zinc-700":"bg-white"} ${isDark?"border-gray-700":""}`}>
+        <CardHeader className="flex flex-col items-center gap-4 pt-10 pb-0 px-8 ">
+        <div className="w-100 h-30  flex items-center justify-center rounded-xl p-4">
+  <img 
+    src={isDark ? Logom2 : Logom} 
+    alt="Logo" 
+    className="object-contain" 
+  />
+</div>
           <h1 className="text-3xl font-bold text-foreground text-center">
             Welcome Back
           </h1>
@@ -62,6 +66,7 @@ console.log("data",data)
 
         <CardFooter className="flex flex-col gap-6 p-8">
           <form onSubmit={handleLogin} className="space-y-6 w-full">
+          <Label>Email:</Label>
             <Input
               type="email"
               label="Email"
@@ -69,7 +74,8 @@ console.log("data",data)
               value={email}
               onChange={(e) => setEmail(e.target.value.trim())}
               fullWidth
-              variant="ghost"
+              variant="primary"
+              className={`bg-warning-soft`}
               size="lg"
               radius="lg"
               isRequired
@@ -78,6 +84,7 @@ console.log("data",data)
             />
 
             <div className="relative">
+            <Label>Password:</Label>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 label="Password"
@@ -85,17 +92,18 @@ console.log("data",data)
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 fullWidth
-                variant="ghost"
+                variant="primary"
                 size="lg"
                 radius="lg"
                 isRequired
+                className={`bg-warning-soft`}
                 isInvalid={!!error}
               />
 
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-default-100"
+                className="absolute right-4 top-10  hover:cursor-pointer -translate-y-1/2 p-1 rounded-full hover:bg-default-100"
               >
                 {showPassword ? (
                   <EyeOff className="size-5 text-default-500" />
@@ -119,7 +127,7 @@ console.log("data",data)
             </Button>
           </form>
 
-          <div className="text-center text-xs text-default-400 pt-2">
+          {/* <div className="text-center text-xs text-default-400 pt-2">
             Don't have an account?{' '}
             <Link
               onClick={() => navigate('/register')}
@@ -127,7 +135,7 @@ console.log("data",data)
             >
               Register here
             </Link>
-          </div>
+          </div> */}
 
           <div className="text-center text-xs text-default-400">
             Powered by{' '}

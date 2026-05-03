@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Chip } from "@heroui/react";
+import { Calendar,CircleCheck,ArrowUpArrowDown ,Speedometer} from "@gravity-ui/icons";
 
 // helper: get YYYY-MM key
 const getMonthKey = (date) => {
@@ -14,7 +15,7 @@ const getMonthLabel = (date) =>
     year: "numeric",
   });
 
-export default function KpiDash({ shipments = [], selectedMonth }) {
+export default function KpiDash({ shipments = [], selectedMonth,isDark }) {
   // ================= CURRENT MONTH =================
   const now = new Date();
   const activeMonth =
@@ -132,8 +133,8 @@ export default function KpiDash({ shipments = [], selectedMonth }) {
     <div className="grid grid-cols-3 gap-4 mb-6">
 
       {/* ================= CURRENT MONTH STATUS ================= */}
-      <Card className="p-4 space-y-0 ">
-        <Chip variant="soft" color="success" className="font-semibold text-black px-2 shadow-sm rounded-md ">
+      <Card className="p-4 space-y-0 border">
+        <Chip variant="soft"  className={`font-semibold bg-[#fab278]-soft   px-2 shadow-sm rounded-md `}>
           This Month ({getMonthLabel(activeMonth)})
         </Chip>
 
@@ -158,8 +159,8 @@ export default function KpiDash({ shipments = [], selectedMonth }) {
       </Card>
 
       {/* ================= KPI TREND CARD ================= */}
-      <Card className="p-4 space-y-2">
-      <Chip variant="soft" color="success" className="font-semibold text-black px-2 shadow-sm rounded-md ">Trend vs Last Month</Chip>
+      <Card className="p-4 space-y-2 border">
+      <Chip variant="soft"  className={`font-semibold bg-[#fab278]-soft   px-2 shadow-sm rounded-md `}>Trend vs Last Month</Chip>
 
         <div className="text-sm flex justify-between">
           <span>Actual</span>
@@ -184,38 +185,45 @@ export default function KpiDash({ shipments = [], selectedMonth }) {
       </Card>
 
       {/* ================= TOTAL (CURRENT MONTH ONLY) ================= */}
-      <Card className="p-4 space-y-0">
-      <Chip variant="soft" color="success" className="font-semibold text-black px-2 shadow-sm rounded-md ">Monthly Totals</Chip>
+      <Card className="p-4 space-y-0 border">
+      <Chip variant="soft"  className={`font-semibold bg-[#fab278]-soft   px-2 shadow-sm rounded-md `}>Monthly Totals</Chip>
 
-        <div className="flex justify-between text-sm">
-          <span>Projected</span>
-          <span className="">{current.projected}</span>
-        </div>
+      <div className="flex justify-between text-sm">
+  <span className="flex items-center gap-1">
+   
+    <Calendar size={14} className="text-red-500 mr-1" />
+    Projected 
+  </span>
+  <span className="">{current.projected}</span>
+</div>
 
-        <div className="flex justify-between text-sm">
-          <span>Actual</span>
-          <span className="">{current.actual}</span>
-        </div>
+<div className="flex justify-between text-sm">
+  <span className="flex items-center gap-1">
+    <CircleCheck size={14} className="text-green-500" />
+    Actual
+  </span>
+  <span className="">{current.actual}</span>
+</div>
 
-        <div className="flex justify-between text-sm">
-          <span>Variance</span>
-          <span
-            className={` ${
-              current.variance >= 0
-                ? "text-green-600"
-                : "text-red-600"
-            }`}
-          >
-            {current.variance}
-          </span>
-        </div>
+<div className="flex justify-between text-sm">
+  <span className="flex items-center gap-1">
+    <ArrowUpArrowDown size={14} className="text-gray-500" />
+    Variance
+  </span>
+  <span className={`${current.variance >= 0 ? "text-green-600" : "text-red-600"}`}>
+    {current.variance}
+  </span>
+</div>
 
-        <div className="flex justify-between text-sm">
-          <span>Efficiency</span>
-          <span className="font-semibold">
-            {percentage.toFixed(0)}%
-          </span>
-        </div>
+<div className="flex justify-between text-sm">
+  <span className="flex items-center gap-1">
+    <Speedometer size={14} className="text-blue-500" />
+    Efficiency
+  </span>
+  <span className="font-semibold">
+    {percentage.toFixed(0)}%
+  </span>
+</div>
       </Card>
 
     </div>
