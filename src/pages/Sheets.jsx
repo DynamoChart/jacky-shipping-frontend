@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Table, Chip, Spinner, TagGroup, Tag, Button } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus, Calendar, X } from "lucide-react";
+import DescriptionSummary from "./DescriptionSummary";
 function Sheets({isDark}) {
   const [shipments, setShipments] = useState([]);
 const [plantsList, setPlantsList] = useState([]);
@@ -275,9 +276,9 @@ setPlantSummary(sortedPlantArray);
                   key={day.date} 
                   id={day.date}
                   className={`
-                    justify-center text-sm py-1
-                    ${selectedDate === day.date ? 'bg-yellow-400 text-black font-bold' : ''}
-                    ${day.hasData && selectedDate !== day.date ? (isDark ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-50 hover:bg-blue-100') : ''}
+                    justify-center text-sm py-1 h-5
+                    ${selectedDate === day.date ? 'bg-yellow-400 text-black font-bold ' : ''}
+                    ${day.hasData && selectedDate !== day.date ? (isDark ? 'bg-blue-500 hover:bg-blue-600 h-4' : 'bg-blue-300 hover:bg-blue-100 h-4') : ''}
                     ${!day.hasData && selectedDate !== day.date ? 'opacity-50' : ''}
                   `}
                 >
@@ -298,119 +299,131 @@ setPlantSummary(sortedPlantArray);
       {/* Right Side - Main Content */}
       <div className="flex-1 space-y-4">
         {/* Plant Sums Summary Table */}
-        <Card className="overflow-hidden shadow-none border-0">
-          <Card.Content className="p-0">
-            <div className="p-2">
-              <Table aria-label="Plant sums table" variant="secondary">
-                <Table.ScrollContainer>
-                  <Table.Content className="min-w-[800px]">
-                    <Table.Header>
-                      <Table.Column className="bg-gray-100 px-3 py-1"></Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Projected Shipped</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Actual Shipped</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Variance Amount</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Efficiency</Table.Column>
-                    </Table.Header>
+       {/* Plant Sums Summary Table */}
+<Card className="overflow-hidden shadow-none border-0">
+  <Card.Content>
+    <div className="mb-4">
+      <h3 className="text-lg ">Plant Summary</h3>
+      <p className="text-sm text-gray-500 mt-1">Overall totals across all locations</p>
+    </div>
+    
+    <Table aria-label="Plant sums table">
+      <Table.ScrollContainer className="max-h-[200px]">
+        <Table.Content className="min-w-[800px]">
+          <Table.Header>
+            <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Location</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Projected Shipped</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Actual Shipped</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Variance Amount</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Efficiency</Table.Column>
+          </Table.Header>
 
-                    <Table.Body>
-                      <Table.Collection items={[
-                        {
-                          key: 'plant-sums',
-                          plant: 'Plant Sums',
-                          projected: totals.projected,
-                          actual: totals.actual,
-                          variance: totals.variance,
-                          percentage: totals.percentage
-                        }
-                      ]}>
-                        {(item) => (
-                          <Table.Row className="font-bold">
-                            <Table.Cell className={`font-bold ${isDark ? "text-gray-100" : "text-gray-800"} text-sm px-3 py-1`}>
-                              {item.plant}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="font-bold text-blue-700 text-sm px-3 py-1">
-                              {formatCurrency(item.projected)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="font-bold text-green-700 text-sm px-3 py-1">
-                              {formatCurrency(item.actual)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className={`font-bold text-sm px-3 py-1 ${item.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {formatCurrency(item.variance)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="px-3 py-1">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
-                                item.percentage >= 90 ? 'bg-green-100 text-green-700' :
-                                item.percentage >= 70 ? 'bg-yellow-100 text-yellow-700' :
-                                item.percentage >= 50 ? 'bg-orange-100 text-orange-700' :
-                                'bg-red-100 text-red-700'
-                              }`}>
-                                {formatPercentage(item.percentage)}
-                              </span>
-                            </Table.Cell>
-                          </Table.Row>
-                        )}
-                      </Table.Collection>
-                    </Table.Body>
-                  </Table.Content>
-                </Table.ScrollContainer>
-              </Table>
-            </div>
-          </Card.Content>
-        </Card>
+          <Table.Body renderEmptyState={() => <div className="text-center py-2 text-gray-500">No data available</div>}>
+            <Table.Collection items={[
+              {
+                key: 'plant-sums',
+                plant: 'Plant Sums',
+                projected: totals.projected,
+                actual: totals.actual,
+                variance: totals.variance,
+                percentage: totals.percentage
+              }
+            ]}>
+              {(item) => (
+                <Table.Row key={item.key} className="hover:bg-amber-50 transition-colors">
+                  <Table.Cell className={` ${isDark ? "text-gray-100" : "text-gray-800"} px-3 py-1`}>
+                    {item.plant}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="font-semibold text-blue-600 px-3 py-1">
+                    {formatCurrency(item.projected)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="font-semibold text-green-600 px-3 py-1">
+                    {formatCurrency(item.actual)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className={`font-semibold px-3 py-1 ${item.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(item.variance)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="px-3 py-1">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      item.percentage >= 90 ? 'bg-green-100 text-green-700' :
+                      item.percentage >= 70 ? 'bg-yellow-100 text-yellow-700' :
+                      item.percentage >= 50 ? 'bg-orange-100 text-orange-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {formatPercentage(item.percentage)}
+                    </span>
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Collection>
+          </Table.Body>
+        </Table.Content>
+      </Table.ScrollContainer>
+    </Table>
+  </Card.Content>
+</Card>
 
         {/* Plant Summary Table */}
-        <Card className="overflow-hidden shadow-none border-0">
-          <Card.Content className="p-0">
-            <div className="m-4">
-              <Table aria-label="Plant summary table" variant="secondary">
-                <Table.ScrollContainer className="max-h-[400px]">
-                  <Table.Content className="min-w-[800px]">
-                    <Table.Header>
-                      <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Location</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Projected Shipped</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Actual Shipped</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Variance Amount</Table.Column>
-                      <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Efficiency</Table.Column>
-                    </Table.Header>
+       {/* Plant Summary Table */}
+<Card className="overflow-hidden shadow-none border-0">
+  <Card.Content>
+    <div className="mb-4">
+      <h3 className="text-lg font-semibold">Plant Performance Summary</h3>
+      <p className="text-sm text-gray-500 mt-1">Detailed breakdown by location</p>
+    </div>
+    
+    <Table aria-label="Plant summary table">
+      <Table.ScrollContainer className="max-h-[400px]">
+        <Table.Content className="min-w-[800px]">
+          <Table.Header>
+            <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Location</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Projected Shipped</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Actual Shipped</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Variance Amount</Table.Column>
+            <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Efficiency</Table.Column>
+          </Table.Header>
 
-                    <Table.Body renderEmptyState={() => <div className="text-center py-2 text-gray-900">No data available</div>}>
-                      <Table.Collection items={plantSummary.map((item) => ({ ...item, key: item.plant }))}>
-                        {(item) => (
-                          <Table.Row key={item.key} className="hover:bg-amber-50 transition-colors">
-                            <Table.Cell className={`font-medium ${isDark ? "text-gray-100" : "text-gray-800"} px-3 py-1`}>
-                              {item.plant}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="text-blue-600 font-medium px-3 py-1">
-                              {formatCurrency(item.projected)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="text-green-600 font-medium px-3 py-1">
-                              {formatCurrency(item.actual)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className={`font-semibold ${item.variance >= 0 ? 'text-green-600' : 'text-red-600'} px-3 py-1`}>
-                              {formatCurrency(item.variance)}
-                            </Table.Cell>
-                            <Table.Cell align="end" className="px-3 py-1">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
-                                item.projected === 0 ? 'bg-gray-100 text-gray-500' :
-                                item.percentage >= 90 ? 'bg-green-100 text-green-700' :
-                                item.percentage >= 70 ? 'bg-yellow-100 text-yellow-700' :
-                                item.percentage >= 50 ? 'bg-orange-100 text-orange-700' :
-                                'bg-red-100 text-red-700'
-                              }`}>
-                                {item.projected === 0 ? '—' : formatPercentage(item.percentage)}
-                              </span>
-                            </Table.Cell>
-                          </Table.Row>
-                        )}
-                      </Table.Collection>
-                    </Table.Body>
-                  </Table.Content>
-                </Table.ScrollContainer>
-              </Table>
-            </div>
-          </Card.Content>
-        </Card>
-
+          <Table.Body renderEmptyState={() => <div className="text-center py-8 text-gray-500">No data available</div>}>
+            <Table.Collection items={plantSummary.map((item) => ({ ...item, key: item.plant }))}>
+              {(item) => (
+                <Table.Row key={item.key} className="hover:bg-amber-50 transition-colors">
+                  <Table.Cell className={`font-medium ${isDark ? "text-gray-100" : "text-gray-800"} px-3 py-1`}>
+                    {item.plant}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="text-blue-600 font-medium px-3 py-1">
+                    {formatCurrency(item.projected)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="text-green-600 font-medium px-3 py-1">
+                    {formatCurrency(item.actual)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className={`font-semibold px-3 py-1 ${item.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(item.variance)}
+                  </Table.Cell>
+                  <Table.Cell align="end" className="px-3 py-1">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
+                      item.projected === 0 ? 'bg-gray-100 text-gray-500' :
+                      item.percentage >= 90 ? 'bg-green-100 text-green-700' :
+                      item.percentage >= 70 ? 'bg-yellow-100 text-yellow-700' :
+                      item.percentage >= 50 ? 'bg-orange-100 text-orange-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {item.projected === 0 ? '—' : formatPercentage(item.percentage)}
+                    </span>
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Collection>
+          </Table.Body>
+        </Table.Content>
+      </Table.ScrollContainer>
+    </Table>
+  </Card.Content>
+</Card>
+        <DescriptionSummary 
+  shipments={shipments} 
+  selectedDate={selectedDate} 
+  isDark={isDark} 
+/>
         {/* Detailed Shipments Table */}
         <Card className="overflow-hidden shadow-none border-0">
           <Card.Content>
