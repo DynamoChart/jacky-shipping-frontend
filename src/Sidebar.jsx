@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import { Button, Chip ,Avatar} from "@heroui/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FileSpreadsheet } from "lucide-react";
 
 import { useAppContext } from "./context/DataContext";
 import { ChevronLeft, ChevronRight,ScrollText, PackageSearch,CircleUser,Sun, Moon, Users, Factory, ChartPie, ShoppingBasket, LogOut } from "lucide-react";
@@ -34,11 +35,14 @@ export default function Sidebar({isDark,setIsDark}) {
 
   const menuItems = [
     { icon: <ChartPie size={22} />, label: "Dashboard", path: "/" },
+    { icon: <FileSpreadsheet size={22} />, label: "Work Sheet", path: "/sheet" },
     { icon: <PackageSearch size={22} />, label: "Shipments", path: "/shipments" },
     // { icon: <Users size={22} />, label: "Customers", path: "/customers" },
     { icon: <Factory size={22} />, label: "Plants", path: "/plants" },
     { icon: <ScrollText size={22} />, label: "Items", path: "/items" },
+ 
     // Users button - visible only to ADMIN
+  
     ...(user?.role === 'admin' ? [{ 
       icon: <CircleUser size={22} />, 
       label: "Users", 

@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ChangePassword from "./pages/auth/ChangePassword";
-
+import Sheets from "./pages/Sheets";
 import Dashboard from "./pages/Dashboard";
 import Shipments from "./pages/Shipments";
 import Customers from "./pages/Customers";
@@ -89,8 +89,10 @@ export default function App() {
                   <div className="flex-1 overflow-auto p-6">
                     <Routes>
                       <Route path="/" element={<Dashboard  isDark={isDark}/>} />
+                      <Route path="/sheet" element={<Sheets />} />
                       <Route path="/shipments" element={<Shipments />} />
                       <Route path="/customers" element={<Customers />} />
+                      
                       <Route path="/plants" element={<Plant />} />
                       <Route path="/items" element={<Items />} />
                       <Route path="/users" element={<Users />} />
