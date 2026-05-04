@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Table, Chip, Spinner, TagGroup, Tag, Button } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus, Calendar, X } from "lucide-react";
-function Sheets() {
+function Sheets({isDark}) {
   const [shipments, setShipments] = useState([]);
 const [plantsList, setPlantsList] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -229,7 +229,7 @@ setPlantSummary(sortedPlantArray);
 
   return (
     <div className="p-0 space-y-0">
-    <Card className="overflow-hidden shadow-none border border-gray-200 mb-2">
+    <Card className={`overflow-hidden shadow-none border  ${isDark?"border-gray-800":"border-gray-200"} mb-2`}>
         <Card.Content className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ setPlantSummary(sortedPlantArray);
               >
                 ←
               </Button>
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className={`text-lg ${isDark?"text-white":"text-gray-900"} font-semibold text-gray-800`}>
                 {formatMonthDisplay()}
               </h3>
               <Button
@@ -284,7 +284,7 @@ setPlantSummary(sortedPlantArray);
                 <Tag 
                   key={day.date} 
                   id={day.date}
-                  className={`${day.hasData ? 'bg-blue-50 hover:bg-blue-100' : 'opacity-50'}`}
+                  className={`${day.hasData ? isDark? 'bg-blue-500 hover:bg-blue-800':"bg-blue-50 hover:bg-blue-100" : 'opacity-50'}`}
                 >
                   {day.day}
                 </Tag>
@@ -293,7 +293,7 @@ setPlantSummary(sortedPlantArray);
           </TagGroup>
           
           {selectedDate && (
-            <div className="mt-3 text-sm text-blue-600">
+            <div className={`mt-3 text-sm ${isDark?"text-blue-100":"text-blue-800"} `}>
               Showing data for: {new Date(selectedDate).toLocaleDateString()}
             </div>
           )}
@@ -333,8 +333,8 @@ setPlantSummary(sortedPlantArray);
                 }
               ]}>
                 {(item) => (
-                  <Table.Row className="bg-gradient-to-r from-gray-50 to-gray-100 font-bold">
-                    <Table.Cell className="font-bold text-gray-800 text-sm px-3 py-1">
+                  <Table.Row className=" font-bold">
+                    <Table.Cell className={`font-bold ${isDark?"text-gray-100":"text-gray-800"}  text-sm px-3 py-1`}>
                       {item.plant}
                     </Table.Cell>
                     <Table.Cell align="end" className="font-bold text-blue-700 text-sm px-3 py-1">
@@ -369,7 +369,7 @@ setPlantSummary(sortedPlantArray);
 
     {/* HeroUI Table */}
    {/* HeroUI Table */}
-<div className="p-2">
+<div className=" m-4">
   <Table aria-label="Plant summary table" variant="secondary">
     <Table.ScrollContainer className="max-h-[400px]">
       <Table.Content className="min-w-[800px]">
@@ -385,7 +385,7 @@ setPlantSummary(sortedPlantArray);
           <Table.Collection items={plantSummary.map((item) => ({ ...item, key: item.plant }))}>
             {(item) => (
               <Table.Row key={item.key} className="hover:bg-amber-50 transition-colors">
-                <Table.Cell className="font-medium text-gray-800 border-r border-gray-200 px-3 py-1">
+                <Table.Cell className={`font-medium ${isDark?"text-gray-100":"text-gray-800"} px-3 py-1`}>
                   {item.plant}
                 </Table.Cell>
                 <Table.Cell align="end" className="text-blue-600 font-medium px-3 py-1">

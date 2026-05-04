@@ -89,7 +89,7 @@ export default function App() {
                   <div className="flex-1 overflow-auto p-6">
                     <Routes>
                       <Route path="/" element={<Dashboard  isDark={isDark}/>} />
-                      <Route path="/sheet" element={<Sheets />} />
+                      <Route path="/sheet" element={<Sheets   isDark={isDark}/>} />
                       <Route path="/shipments" element={<Shipments />} />
                       <Route path="/customers" element={<Customers />} />
                       
