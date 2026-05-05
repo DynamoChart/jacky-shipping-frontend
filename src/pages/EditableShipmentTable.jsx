@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Card, Table, Chip, Spinner, ComboBox, Input, ListBox, Button } from "@heroui/react";
+import React, { useState,useEffect } from "react";
+import { Card, Table, Chip, Spinner, ComboBox,TextArea, Input, ListBox, Button } from "@heroui/react";
 import { Pencil, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
-
+import { Modal } from "@heroui/react";
+import { useOverlayState } from "@heroui/react";
 const STATUS_OPTIONS = [
   { id: "Shipped Full", name: "Shipped Full", color: "success" },
   { id: "Shipped Partial", name: "Shipped Partial", color: "warning" },
@@ -15,34 +16,21 @@ const getStatusColor = (status) => {
   return option?.color || "default";
 };
 
-// Status cell - with optimistic update
+// Status cell - perfect as is
 const StatusCell = ({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || "");
   const [isSaving, setIsSaving] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value || "");
 
   const handleSave = async () => {
-    const oldValue = currentValue;
-    // Optimistic update - show new value immediately
-    setCurrentValue(editValue);
     setIsSaving(true);
-    
-    try {
-      await onSave(editValue);
-      toast.success("Status updated");
-      setIsEditing(false);
-    } catch (error) {
-      // Revert on error
-      setCurrentValue(oldValue);
-      toast.error("Failed to update status");
-    } finally {
-      setIsSaving(false);
-    }
+    await onSave(editValue);
+    setIsSaving(false);
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditValue(currentValue);
+    setEditValue(value || "");
     setIsEditing(false);
   };
 
@@ -115,12 +103,12 @@ const StatusCell = ({ value, onSave }) => {
     <div className="flex items-center gap-2 group">
       <Chip
         size="sm"
-        color={getStatusColor(currentValue)}
+        color={getStatusColor(value)}
         variant="soft"
         className="cursor-pointer"
         onClick={() => setIsEditing(true)}
       >
-        {currentValue || '—'}
+        {value || '—'}
       </Chip>
       <Button
         isIconOnly
@@ -135,35 +123,22 @@ const StatusCell = ({ value, onSave }) => {
   );
 };
 
-// Number cell - with optimistic update
+// Number cell - editable inline
 const NumberCell = ({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || 0);
   const [isSaving, setIsSaving] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value || 0);
 
   const handleSave = async () => {
     const newValue = parseFloat(editValue) || 0;
-    const oldValue = currentValue;
-    // Optimistic update - show new value immediately
-    setCurrentValue(newValue);
     setIsSaving(true);
-    
-    try {
-      await onSave(newValue);
-      toast.success("Value updated");
-      setIsEditing(false);
-    } catch (error) {
-      // Revert on error
-      setCurrentValue(oldValue);
-      toast.error("Failed to update value");
-    } finally {
-      setIsSaving(false);
-    }
+    await onSave(newValue);
+    setIsSaving(false);
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditValue(currentValue);
+    setEditValue(value || 0);
     setIsEditing(false);
   };
 
@@ -213,7 +188,7 @@ const NumberCell = ({ value, onSave }) => {
     );
   }
 
-  const displayValue = currentValue === 0 ? '0' : (currentValue || '0');
+  const displayValue = value === 0 ? '0' : (value || '0');
   
   return (
     <div className="flex items-center justify-end gap-2 group">
@@ -233,114 +208,140 @@ const NumberCell = ({ value, onSave }) => {
   );
 };
 
-// Text cell - with optimistic update
-const TextCell = ({ value, onSave, isNarrow = false }) => {
-  const [isEditing, setIsEditing] = useState(false);
+// Text cell - editable inline
+const TextCell = ({ value, onSave, isNarrow = false, isTextarea = false }) => {
+  const state = useOverlayState({ defaultOpen: false });
+
   const [editValue, setEditValue] = useState(value || "");
+  const [displayValue, setDisplayValue] = useState(value || "");
   const [isSaving, setIsSaving] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value || "");
+  const [error, setError] = useState(false);
 
-  const handleSave = async () => {
-    const oldValue = currentValue;
-    // Optimistic update - show new value immediately
-    setCurrentValue(editValue);
+  // sync when parent updates (important after refresh)
+  useEffect(() => {
+    setDisplayValue(value || "");
+    setError(false);
+  }, [value]);
+
+  const handleOpen = () => {
+    setEditValue(displayValue || "");
+    state.open();
+  };
+
+  const handleSave = (close) => {
+    const newValue = editValue;
+
+    // 🔥 instant UI update
+    setDisplayValue(newValue);
+    setError(false);
+
+    close();
+
     setIsSaving(true);
-    
-    try {
-      await onSave(editValue);
-      toast.success("Value updated");
-      setIsEditing(false);
-    } catch (error) {
-      // Revert on error
-      setCurrentValue(oldValue);
-      toast.error("Failed to update value");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
-  const handleCancel = () => {
-    setEditValue(currentValue);
-    setIsEditing(false);
+    onSave(newValue)
+      .then(() => {
+        // success → do nothing (value already set)
+      })
+      .catch(() => {
+        // ❌ show failed state
+        setError(true);
+        setDisplayValue("FAILED");
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
-
-  if (isEditing) {
-    return (
-      <div className="flex flex-col gap-1 p-0 m-0">
-        <div className="flex items-center">
-          <Input
-            size="sm"
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className={isNarrow ? "w-24 h-6 p-0 m-0 pl-2 text-xs" : "w-32 h-6 p-0 m-0 text-xs"}
-            classNames={{
-              input: "h-6 p-1 m-0 text-xs",
-              inputWrapper: "h-6 p-0 m-0 min-h-0"
-            }}
-            autoFocus
-            isDisabled={isSaving}
-          />
-        </div>
-        <div className="flex items-center justify-start gap-1">
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="success" 
-            onPress={handleSave}
-            className="h-6 min-h-0 w-14 m-0 bg-success-soft"
-            isLoading={isSaving}
-          >
-            {!isSaving && <Check size={12} />}
-          </Button>
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="danger" 
-            onPress={handleCancel}
-            className="h-6 min-h-0 w-14 m-0 bg-danger-soft"
-            isDisabled={isSaving}
-          >
-            <X size={12} />
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex items-center gap-2 group">
-      <span className="truncate cursor-pointer" onClick={() => setIsEditing(true)}>
-        {currentValue || '—'}
-      </span>
-      <Button
-        isIconOnly
-        size="sm"
-        variant="light"
-        className="opacity-0 group-hover:opacity-100 transition-opacity"
-        onPress={() => setIsEditing(true)}
-      >
-        <Pencil size={12} />
-      </Button>
-    </div>
+    <>
+      {/* Trigger */}
+      <div className="flex items-center gap-2 group">
+        <span
+          className={`truncate cursor-pointer ${
+            error ? "text-red-500 font-medium" : ""
+          }`}
+          onClick={handleOpen}
+        >
+          {displayValue || "—"}
+        </span>
+
+        <Button
+          isIconOnly
+          size="sm"
+          variant="light"
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          onPress={handleOpen}
+        >
+          <Pencil size={12} />
+        </Button>
+      </div>
+
+      {/* Modal */}
+      <Modal >
+        <Modal.Backdrop
+          isOpen={state.isOpen}
+          onOpenChange={state.setOpen}
+        >
+          <Modal.Container placement="center" size={isTextarea ? "md" : "sm"}>
+            <Modal.Dialog>
+              {({ close }) => (
+                <>
+                  <Modal.CloseTrigger />
+
+
+                  <Modal.Body className="p-0 m-0">
+                    {isTextarea ? (
+                      <TextArea
+                        autoFocus
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        minRows={4}
+                        isDisabled={isSaving}
+                        className="p-2 m-3 w-[90%]"
+                      />
+                    ) : (
+                      <Input
+                        autoFocus
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        isDisabled={isSaving}
+                        className="p-2 m-3 w-[90%]"
+                      />
+                    )}
+                  </Modal.Body>
+
+                  <Modal.Footer>
+                    <Button
+                      variant="light"
+                      onPress={close}
+                      isDisabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      color="success"
+                      onPress={() => handleSave(close)}
+                    >
+                      Save
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
+    </>
   );
 };
 
-function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCurrency, tableLoading }) {
-  // Local state for shipments to enable optimistic updates
-  const [localShipments, setLocalShipments] = useState(shipments);
-  
-  // Update local shipments when prop changes
-  React.useEffect(() => {
-    setLocalShipments(shipments);
-  }, [shipments]);
-
-  // Group shipments by plant with filtered data using local state
-  let currentShipments = localShipments;
+function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCurrency, tableLoading, onRefresh }) {
+  // Group shipments by plant with filtered data
+  let currentShipments = shipments;
   if (selectedDate) {
-    currentShipments = localShipments.filter(s => {
+    currentShipments = shipments.filter(s => {
       if (!s.pickupTime) return false;
       const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
       return shipmentDate === selectedDate;
@@ -394,7 +395,9 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
           salesOrder: shipment.salesOrder,
           carrier: shipment.carrier,
           pickupTime: shipment.pickupTime,
-          notes: shipment.notes
+          notes: shipment.notes,
+          // Store original shipment data for updates
+          originalShipment: shipment
         });
       } else {
         // Empty row
@@ -453,30 +456,23 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
     }
   });
 
-  // Update shipment function with optimistic update
+  // Update shipment function with API call
   const handleUpdateShipment = async (shipmentId, field, newValue) => {
-    // Find the original shipment to get all its data
-    const originalShipment = localShipments.find(s => s._id === shipmentId);
-    if (!originalShipment) {
-      toast.error("Shipment not found");
-      return;
-    }
-    
-    // Create updated shipment object with the new value
-    const updatedShipment = {
-      ...originalShipment,
-      [field]: newValue
-    };
-    
-    // Update local state immediately (optimistic update)
-    setLocalShipments(prevShipments => 
-      prevShipments.map(s => 
-        s._id === shipmentId ? updatedShipment : s
-      )
-    );
-    
     try {
-      // Send PUT request to update the shipment in the background
+      // Find the original shipment to get all its data
+      const originalShipment = shipments.find(s => s._id === shipmentId);
+      if (!originalShipment) {
+        toast.error("Shipment not found");
+        return;
+      }
+      
+      // Create updated shipment object with the new value
+      const updatedShipment = {
+        ...originalShipment,
+        [field]: newValue
+      };
+      
+      // Send PUT request to update the shipment
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shipments/${shipmentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -489,16 +485,14 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
       
       toast.success(`${field} updated successfully`);
       
+      // Refresh the data if onRefresh prop is provided
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
     } catch (error) {
       console.error("Error updating shipment:", error);
       toast.error(`Failed to update ${field}`);
-      
-      // Revert the local state if API call fails
-      setLocalShipments(prevShipments => 
-        prevShipments.map(s => 
-          s._id === shipmentId ? originalShipment : s
-        )
-      );
     }
   };
 
@@ -637,7 +631,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                             <TextCell
                               value={row.notes}
                               onSave={(newValue) => handleUpdateShipment(row.shipmentId, 'notes', newValue)}
-                              isNarrow={false}
+                              isTextarea={true}
                             />
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>

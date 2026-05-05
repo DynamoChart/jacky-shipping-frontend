@@ -33,6 +33,20 @@
   }
 }
 
+/* Disable table keyboard navigation when input is focused */
+.table-editing input:focus,
+.table-editing .heroui-input:focus {
+  position: relative;
+  z-index: 1000;
+}
 
+/* Prevent table from capturing keys when input is focused */
+body:has(.editing-cell) .heroui-table {
+  pointer-events: none;
+}
+
+.editing-cell {
+  pointer-events: auto !important;
+}
 
 
