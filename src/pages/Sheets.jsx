@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Table, Chip, Spinner, TagGroup, Tag, Button } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus, Calendar, X } from "lucide-react";
 import DescriptionSummary from "./DescriptionSummary";
+import EditableShipmentTable from "./EditableShipmentTable";
 function Sheets({isDark}) {
   const [shipments, setShipments] = useState([]);
 const [plantsList, setPlantsList] = useState([]);
@@ -21,7 +22,12 @@ const [totals, setTotals] = useState({
   });
 
   useEffect(() => {
-    Promise.all([fetchShipments(), fetchPlants()]);
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchShipments(), fetchPlants()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const fetchShipments = async () => {
@@ -31,8 +37,6 @@ const [totals, setTotals] = useState({
       setShipments(data);
     } catch (error) {
       console.error("Error fetching shipments:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -89,16 +93,16 @@ const getDaysInMonth = () => {
   }
   return days;
 };
-  const fetchPlants = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/plants`);
-      const data = await response.json();
-      const plantNames = data.map(plant => plant.name);
-      setPlantsList(plantNames);
-    } catch (error) {
-      console.error("Error fetching plants:", error);
-    }
-  };
+const fetchPlants = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/plants`);
+    const data = await response.json();
+    const plantNames = data.map(plant => plant.name);
+    setPlantsList(plantNames);
+  } catch (error) {
+    console.error("Error fetching plants:", error);
+  }
+};
   const calculateSummaries = (data, plants) => {
     // Calculate totals
     let totalProjected = 0;
@@ -155,42 +159,31 @@ const sortedPlantArray = plantArray.sort((a, b) => b.projected - a.projected);
 setPlantSummary(sortedPlantArray);
   };
   useEffect(() => {
-    const updateData = async () => {
-      setTableLoading(true);
-      
-      // Small delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      if (shipments.length > 0 && plantsList.length > 0) {
-        // Filter shipments by selected date if needed
-        let filteredShipments = shipments;
-        if (selectedDate) {
-          filteredShipments = shipments.filter(s => {
-            if (!s.pickupTime) return false;
-            const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
-            return shipmentDate === selectedDate;
-          });
-        }
-        calculateSummaries(filteredShipments, plantsList);
-        
-        // Update available dates
-        setAvailableDates(getAvailableDates(shipments));
-      } else if (shipments.length > 0 && plantsList.length === 0) {
-        let filteredShipments = shipments;
-        if (selectedDate) {
-          filteredShipments = shipments.filter(s => {
-            if (!s.pickupTime) return false;
-            const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
-            return shipmentDate === selectedDate;
-          });
-        }
-        calculateSummaries(filteredShipments, [...new Set(shipments.map(s => s.plant).filter(Boolean))]);
+    if (shipments.length > 0 && plantsList.length > 0) {
+      // Filter shipments by selected date if needed
+      let filteredShipments = shipments;
+      if (selectedDate) {
+        filteredShipments = shipments.filter(s => {
+          if (!s.pickupTime) return false;
+          const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
+          return shipmentDate === selectedDate;
+        });
       }
+      calculateSummaries(filteredShipments, plantsList);
       
-      setTableLoading(false);
-    };
-    
-    updateData();
+      // Update available dates
+      setAvailableDates(getAvailableDates(shipments));
+    } else if (shipments.length > 0 && plantsList.length === 0) {
+      let filteredShipments = shipments;
+      if (selectedDate) {
+        filteredShipments = shipments.filter(s => {
+          if (!s.pickupTime) return false;
+          const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
+          return shipmentDate === selectedDate;
+        });
+      }
+      calculateSummaries(filteredShipments, [...new Set(shipments.map(s => s.plant).filter(Boolean))]);
+    }
   }, [shipments, plantsList, selectedDate]);
   const formatCurrency = (value) => {
     if (value === 0) return "$ -";
@@ -220,13 +213,16 @@ setPlantSummary(sortedPlantArray);
     return "text-gray-500 bg-gray-50";
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
+// Show loading for initial data fetch OR when tables are updating
+// Show loading only for initial data fetch
+if (loading) {
+  return (
+    <div className="flex flex-col justify-center items-center h-screen gap-4">
+      <Spinner size="lg" />
+      <p className="text-gray-500 text-sm">Loading shipment data...</p>
+    </div>
+  );
+}
 
   return (
     <div className="flex gap-0 p-0">
@@ -426,227 +422,17 @@ setPlantSummary(sortedPlantArray);
 />
         {/* Detailed Shipments Table */}
        {/* Detailed Shipments Table */}
-<Card className="overflow-hidden shadow-none border-0">
-  <Card.Content>
-    <div className="mb-4">
-      <h3 className="text-lg font-semibold">Shipment Details</h3>
-      <p className="text-sm text-gray-500 mt-1">Complete shipment history with line items</p>
-      {tableLoading && (
-        <div className="flex items-center gap-2 mt-2">
-          <Spinner size="sm" />
-          <span className="text-sm text-gray-500">Loading...</span>
-        </div>
-      )}
-    </div>
-    
-    {tableLoading ? (
-      <div className="flex justify-center items-center h-96">
-        <Spinner size="lg" />
-      </div>
-    ) : (
-      <Table aria-label="Shipment details table">
-        <Table.ScrollContainer className="max-h-[600px]">
-        <Table.Content className="min-w-[2000px] table-fixed" style={{ tableLayout: 'fixed' }}>
-            <Table.Header>
-              <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Plant</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[130px]">Status</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Customer</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Eng. #</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">SAP Part</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[320px]">Description</Table.Column>
-              <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Proj Qty</Table.Column>
-              <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Act Qty</Table.Column>
-              <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Price</Table.Column>
-              <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Proj ($)</Table.Column>
-              <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Act ($)</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">PO Number</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Sales Order</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Carrier</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Time</Table.Column>
-              <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[200px]">Notes</Table.Column>
-            </Table.Header>
-
-            <Table.Body renderEmptyState={() => <div className="text-center py-8 text-gray-500">No shipments found for the selected criteria</div>}>
-              <Table.Collection>
-              {(() => {
-        // Group shipments by plant with filtered data
-        let currentShipments = shipments;
-        if (selectedDate) {
-          currentShipments = shipments.filter(s => {
-            if (!s.pickupTime) return false;
-            const shipmentDate = new Date(s.pickupTime).toISOString().split('T')[0];
-            return shipmentDate === selectedDate;
-          });
-        }
-        
-        const shipmentsByPlant = {};
-        
-        // First, add all plants from PLANT_ORDER
-        PLANT_ORDER.forEach(plant => {
-          shipmentsByPlant[plant] = currentShipments.filter(s => s.plant === plant);
-        });
-        
-        // Then add any other plants that exist in shipments but not in PLANT_ORDER
-        const otherPlants = [...new Set(currentShipments.map(s => s.plant).filter(p => p && !PLANT_ORDER.includes(p)))];
-        otherPlants.sort();
-        otherPlants.forEach(plant => {
-          shipmentsByPlant[plant] = currentShipments.filter(s => s.plant === plant);
-        });
-
-        // Build rows array with 10 rows per plant + total row
-        const allRows = [];
-        const orderedPlants = [...PLANT_ORDER, ...otherPlants];
-        
-        orderedPlants.forEach(plant => {
-          const plantShipments = shipmentsByPlant[plant] || [];
-          const rowsToShow = Math.max(6, plantShipments.length);
-          
-          for (let i = 0; i < rowsToShow; i++) {
-            if (i < plantShipments.length) {
-              const shipment = plantShipments[i];
-              const projectedValue = (shipment.projectedQty || 0) * (shipment.price || 0);
-              const actualValue = (shipment.actualQty || 0) * (shipment.price || 0);
-              
-              allRows.push({
-                key: `${plant}-row-${i}`,
-                type: 'shipment',
-                plant: shipment.plant || "-",
-                status: shipment.status,
-                customer: shipment.customer,
-                engNumber: shipment.engNumber,
-                sapPart: shipment.sapPart,
-                description: shipment.description,
-                projQty: shipment.projectedQty || 0,
-                actQty: shipment.actualQty || 0,
-                price: shipment.price,
-                projValue: projectedValue,
-                actValue: actualValue,
-                poNumber: shipment.poNumber,
-                salesOrder: shipment.salesOrder,
-                carrier: shipment.carrier,
-                pickupTime: shipment.pickupTime,
-                notes: shipment.notes
-              });
-            } else {
-              // Empty row
-              allRows.push({
-                key: `${plant}-empty-${i}`,
-                type: 'empty',
-                plant: '',
-                status: '',
-                customer: '',
-                engNumber: '',
-                sapPart: '',
-                description: '',
-                projQty: '',
-                actQty: '',
-                price: '',
-                projValue: '',
-                actValue: '',
-                poNumber: '',
-                salesOrder: '',
-                carrier: '',
-                pickupTime: '',
-                notes: ''
-              });
-            }
-          }
-          
-          // Calculate plant totals
-          let plantTotalProj = 0;
-          let plantTotalAct = 0;
-          plantShipments.forEach(s => {
-            plantTotalProj += (s.projectedQty || 0) * (s.price || 0);
-            plantTotalAct += (s.actualQty || 0) * (s.price || 0);
-          });
-          
-          if (plantShipments.length > 0 || PLANT_ORDER.includes(plant)) {
-            allRows.push({
-              key: `${plant}-total`,
-              type: 'total',
-              plant: `${plant} Total`,
-              status: '',
-              customer: '',
-              engNumber: '',
-              sapPart: '',
-              description: '',
-              projQty: '',
-              actQty: '',
-              price: '',
-              projValue: plantTotalProj,
-              actValue: plantTotalAct,
-              poNumber: '',
-              salesOrder: '',
-              carrier: '',
-              pickupTime: '',
-              notes: ''
-            });
-          }
-        });
-                      
-        return allRows.map((row) => (
-          <Table.Row 
-  key={row.key} 
-  className={row.type === 'total' ? 'bg-green-50  border-t-2 border-green-200 hover:bg-green-100 hover:text-gray-900' : 
-               row.type === 'empty' ? 'bg-gray-50 italic text-gray-400' : 
-               'hover:bg-amber-50 transition-colors'}
->
-           <Table.Cell className={`${row.type === 'total' ? 'font-bold text-green-700' :isDark?'font-medium text-white-800':'font-medium text-gray-900'} px-3 py-1`}>
-              {row.plant}
-            </Table.Cell>
-            <Table.Cell className="px-3 py-1">
-              {row.type === 'shipment' && row.status ? (
-                <Chip
-                  size="sm"
-                  color={
-                    row.status === "Shipped Full" ? "success" :
-                    row.status === "Shipped Partial" ? "warning" :
-                    row.status === "Shipped Over" ? "accent" :
-                    "danger"
-                  }
-                  variant="soft"
-                >
-                  {row.status}
-                </Chip>
-              ) : row.type === 'empty' ? '—' : ''}
-            </Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.customer || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.engNumber || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.sapPart || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="max-w-xs truncate px-3 py-1" title={row.description}>
-              {row.type === 'shipment' ? (row.description?.substring(0, 50) || "-") : (row.type === 'empty' ? '—' : '')}
-            </Table.Cell>
-            <Table.Cell align="end" className="px-3 py-1">{row.type === 'shipment' ? row.projQty : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell align="end" className="px-3 py-1">{row.type === 'shipment' ? row.actQty : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell align="end" className="px-3 py-1">{row.type === 'shipment' && row.price ? formatCurrency(row.price) : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell align="end" className={`${row.type === 'total' ? 'font-bold text-blue-700' : 'text-blue-600 font-medium'} px-3 py-1`}>
-              {row.type === 'shipment' ? formatCurrency(row.projValue) : 
-               row.type === 'total' ? formatCurrency(row.projValue) : '—'}
-            </Table.Cell>
-            <Table.Cell align="end" className={`${row.type === 'total' ? 'font-bold text-green-700' : 'text-green-600 font-medium'} px-3 py-1`}>
-              {row.type === 'shipment' ? formatCurrency(row.actValue) : 
-               row.type === 'total' ? formatCurrency(row.actValue) : '—'}
-            </Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.poNumber || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.salesOrder || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="px-3 py-1">{row.type === 'shipment' ? (row.carrier || "-") : (row.type === 'empty' ? '—' : '')}</Table.Cell>
-            <Table.Cell className="px-3 py-1">
-              {row.type === 'shipment' && row.pickupTime ? new Date(row.pickupTime).toLocaleDateString() : (row.type === 'empty' ? '—' : '')}
-            </Table.Cell>
-            <Table.Cell className="max-w-xs truncate px-3 py-1" title={row.notes}>
-              {row.type === 'shipment' ? (row.notes?.substring(0, 30) || "-") : (row.type === 'empty' ? '—' : '')}
-            </Table.Cell>
-          </Table.Row>
-        ));
-      })()}
-              </Table.Collection>
-            </Table.Body>
-          </Table.Content>
-        </Table.ScrollContainer>
-      </Table>
-    )}
-  </Card.Content>
-</Card>
+{/* Detailed Shipments Table - Editable */}
+<EditableShipmentTable 
+  shipments={shipments}
+  selectedDate={selectedDate}
+  PLANT_ORDER={PLANT_ORDER}
+  formatCurrency={formatCurrency}
+  onRefresh={async () => {
+    // Refresh all data after update
+    await Promise.all([fetchShipments(), fetchPlants()]);
+  }}
+/>
       </div>
     </div>
   );

@@ -248,129 +248,103 @@ export default function ShipmentsTable({ shipments , onRefresh }) {
 
 
       {/* ================= TABLE ================= */}
-      <Table>
-        <Table.ScrollContainer className="max-h-[500px]">
-          <Table.Content className="min-w-[1400px]">
+      <Table aria-label="Shipments table">
+  <Table.ScrollContainer className="max-h-[500px]">
+    <Table.Content className="min-w-[1400px]">
+      <Table.Header>
+        <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Plant</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Status</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Customer</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Eng #</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">SAP</Table.Column>
+        <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Proj Qty</Table.Column>
+        <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Act Qty</Table.Column>
+        <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Price</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">PO</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">SO</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Load</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Pickup</Table.Column>
+        <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1">Actions</Table.Column>
+      </Table.Header>
 
-          <Table.Header>
-  <Table.Column isRowHeader>Plant</Table.Column>
-  <Table.Column>Status</Table.Column>
-  <Table.Column>Customer</Table.Column>
-  <Table.Column>Eng #</Table.Column>
-  <Table.Column>SAP</Table.Column>
+      <Table.Body renderEmptyState={() => <div className="text-center py-8 text-gray-500">No shipments found</div>}>
+        <Table.Collection
+          items={(filteredShipments || []).map((s) => ({
+            ...s,
+            key: s._id,
+          }))}
+        >
+          {(s) => (
+            <Table.Row key={s.key} className="hover:bg-amber-50 transition-colors">
+              <Table.Cell className="font-medium text-gray-800 px-3 py-1">
+                {s.plant}
+              </Table.Cell>
+              <Table.Cell className="px-3 py-1">
+                <Chip color={statusColorMap[s.status] || "default"} variant="soft" size="sm">
+                  {s.status}
+                </Chip>
+              </Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.customer}</Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.engNumber}</Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.sapPart}</Table.Cell>
+              <Table.Cell align="end" className="px-3 py-1">{s.projectedQty}</Table.Cell>
+              <Table.Cell align="end" className="px-3 py-1">{s.actualQty}</Table.Cell>
+              <Table.Cell align="end" className="px-3 py-1">{s.price}</Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.poNumber}</Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.salesOrder}</Table.Cell>
+              <Table.Cell className="px-3 py-1">{s.loadNumber}</Table.Cell>
+              <Table.Cell className="px-3 py-1">
+                {s.pickupTime
+                  ? new Date(s.pickupTime).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h23",
+                    })
+                  : "-"}
+              </Table.Cell>
+              <Table.Cell className="px-3 py-1">
+                <div className="flex gap-2">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="soft"
+                    onPress={() => setDrawerItem(s)}
+                    className="h-6 min-h-0 w-6"
+                  >
+                    <Ellipsis size={14} />
+                  </Button>
+                  <button
+                    onClick={() => {
+                      setSelected(s);
+                      setForm(s);
+                      setSelectedPlant(s.plant);
+                      setSelectedSku(s.engNumber);
+                      setSelectedStatus(s.status);
+                      setPickupTime(s.pickupTime);
+                    }}
+                    className="hover:opacity-70"
+                  >
+                    <Pencil size={14} className="cursor-pointer" />
+                  </button>
+                  <button onClick={() => setDeleteId(s._id)} className="hover:opacity-70">
+                    <TrashBin size={14} className="cursor-pointer" />
+                  </button>
+                </div>
+              </Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Collection>
+      </Table.Body>
+    </Table.Content>
+  </Table.ScrollContainer>
+</Table>
 
-  <Table.Column>Proj Qty</Table.Column>
-  <Table.Column>Act Qty</Table.Column>
-  <Table.Column>Price</Table.Column>
-  <Table.Column>PO</Table.Column>
-  <Table.Column>SO</Table.Column>
 
-  <Table.Column>Load</Table.Column>
-  <Table.Column>Pickup</Table.Column>
- 
-  <Table.Column>Actions</Table.Column>
-</Table.Header>
 
-          <Table.Body renderEmptyState={() => <EmptyState>No data</EmptyState>}>
-  <Table.Collection
-    items={(filteredShipments || []).map((s) => ({
-      ...s,
-      key: s._id,
-    }))}
-  >
-    {(s) => (
-    <Table.Row key={s.key}>
 
-    <Table.Cell>{s.plant}</Table.Cell>
-  
-    <Table.Cell>
-      <Chip color={statusColorMap[s.status] || "default"} variant="soft">
-        {s.status}
-      </Chip>
-    </Table.Cell>
-  
-    <Table.Cell>{s.customer}</Table.Cell>
-    <Table.Cell>{s.engNumber}</Table.Cell>
-  
-    {/* ✅ ADD BACK SAP */}
-    <Table.Cell>{s.sapPart}</Table.Cell>
-  
-    {/* ❗ keep description in drawer ONLY (as you wanted) */}
 
-  
-    {/* ✅ SPLIT QTY AGAIN */}
-    <Table.Cell>{s.projectedQty}</Table.Cell>
-    <Table.Cell>{s.actualQty}</Table.Cell>
-  
-    <Table.Cell>{s.price}</Table.Cell>
-  
-    {/* ✅ ADD BACK PO + SO */}
-    <Table.Cell>{s.poNumber}</Table.Cell>
-    <Table.Cell>{s.salesOrder}</Table.Cell>
-  
-    {/* ❗ keep carrier in drawer ONLY */}
-
-  
-    <Table.Cell>{s.loadNumber}</Table.Cell>
-  
-    {/* ✅ YOU ASKED → PICKUP BACK */}
-    <Table.Cell>
-  {s.pickupTime
-    ? new Date(s.pickupTime).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23",
-      })
-    : "-"}
-</Table.Cell>
-  
-    {/* ❗ keep notes in drawer */}
- 
-  
-    <Table.Cell>
-      <div className="flex gap-2">
-  
-      <Button
-  isIconOnly
-  size="sm"
-  variant="soft"
-  onPress={() => setDrawerItem(s)}
->
-  <Ellipsis />
-</Button>
-  
-<button
-  onClick={() => {
-    setSelected(s);
-    setForm(s);
-
-    // ✅ preload values
-    setSelectedPlant(s.plant);
-    setSelectedSku(s.engNumber);
-    setSelectedStatus(s.status);
-    setPickupTime(s.pickupTime);
-  }}
->
-          <Pencil  className="hover:cursor-pointer"/>
-        </button>
-  
-        <button onClick={() => setDeleteId(s._id)}>
-          <TrashBin className="hover:cursor-pointer"/>
-        </button>
-  
-      </div>
-    </Table.Cell>
-  
-  </Table.Row>
-    )}
-  </Table.Collection>
-</Table.Body>
-
-          </Table.Content>
-        </Table.ScrollContainer>
-      </Table>
       {drawerItem && (
   <Drawer>
     <Drawer.Backdrop isOpen onOpenChange={() => setDrawerItem(null)}>
