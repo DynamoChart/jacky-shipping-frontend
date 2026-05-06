@@ -20,78 +20,66 @@ const getStatusColor = (status) => {
 const StatusCell = ({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || "");
-  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    await onSave(editValue);
-    setIsSaving(false);
+  const [displayValue, setDisplayValue] = useState(value || "");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setDisplayValue(value || "");
+    setError(false);
+  }, [value]);
+
+  const handleSave = () => {
+    const newValue = editValue;
+
+    // 🔥 instant UI update
+    setDisplayValue(newValue);
+    setError(false);
     setIsEditing(false);
+
+    onSave(newValue).catch(() => {
+      setError(true);
+      setDisplayValue("FAILED");
+    });
   };
 
   const handleCancel = () => {
-    setEditValue(value || "");
+    setEditValue(displayValue || "");
     setIsEditing(false);
   };
 
   if (isEditing) {
     return (
       <div className="flex flex-col gap-1 p-0 m-0">
-        <div className="flex items-center gap-0">
-          <ComboBox
-            size="sm"
-            selectedKey={editValue}
-            onSelectionChange={(key) => setEditValue(key)}
-            className="w-30 h-6 p-0 m-0"
-            isDisabled={isSaving}
-          >
-            <ComboBox.InputGroup className="h-6 p-0 m-0">
-              <Input 
-                size="sm" 
-                placeholder="Select status..." 
-                className="h-5 p-1 m-0 text-xs"
-                classNames={{
-                  input: "h-6 p-0 m-0",
-                  inputWrapper: "h-6 p-0 m-0 min-h-0"
-                }}
-              />
-              <ComboBox.Trigger className="h-6 p-0 m-0" />
-            </ComboBox.InputGroup>
-            <ComboBox.Popover>
-              <ListBox className="max-h-48">
-                {STATUS_OPTIONS.map((option) => (
-                  <ListBox.Item key={option.id} id={option.id} textValue={option.name}>
-                    <Chip size="sm" color={option.color} variant="soft" className="w-full">
-                      {option.name}
-                    </Chip>
-                    <ListBox.ItemIndicator />
-                  </ListBox.Item>
-                ))}
-              </ListBox>
-            </ComboBox.Popover>
-          </ComboBox>
-        </div>
-        <div className="flex items-center justify-start gap-1">
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="success" 
-            onPress={handleSave}
-            className="h-6 min-h-0 w-14 m-0 bg-success-soft"
-            isLoading={isSaving}
-          >
-            {!isSaving && <Check size={12} />}
+        <ComboBox
+          size="sm"
+          selectedKey={editValue}
+          onSelectionChange={(key) => setEditValue(key)}
+        >
+          <ComboBox.InputGroup>
+            <Input placeholder="Select status..." />
+            <ComboBox.Trigger />
+          </ComboBox.InputGroup>
+
+          <ComboBox.Popover>
+            <ListBox>
+              {STATUS_OPTIONS.map((option) => (
+                <ListBox.Item key={option.id} id={option.id}>
+                  <Chip size="sm" color={option.color} variant="soft">
+                    {option.name}
+                  </Chip>
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </ComboBox.Popover>
+        </ComboBox>
+
+        <div className="flex gap-1">
+          <Button size="sm" isIconOnly color="success" onPress={handleSave}>
+            <Check size={12} />
           </Button>
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="danger" 
-            onPress={handleCancel}
-            className="h-6 min-h-0 w-14 m-0 bg-danger-soft"
-            isDisabled={isSaving}
-          >
+
+          <Button size="sm" isIconOnly color="danger" onPress={handleCancel}>
             <X size={12} />
           </Button>
         </div>
@@ -103,18 +91,19 @@ const StatusCell = ({ value, onSave }) => {
     <div className="flex items-center gap-2 group">
       <Chip
         size="sm"
-        color={getStatusColor(value)}
+        color={error ? "danger" : getStatusColor(displayValue)}
         variant="soft"
         className="cursor-pointer"
         onClick={() => setIsEditing(true)}
       >
-        {value || '—'}
+        {displayValue || "—"}
       </Chip>
+
       <Button
         isIconOnly
         size="sm"
         variant="light"
-        className="opacity-0 group-hover:opacity-100 transition-opacity"
+        className="opacity-0 group-hover:opacity-100"
         onPress={() => setIsEditing(true)}
       >
         <Pencil size={12} />
@@ -127,18 +116,31 @@ const StatusCell = ({ value, onSave }) => {
 const NumberCell = ({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || 0);
-  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const [displayValue, setDisplayValue] = useState(value || 0);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setDisplayValue(value || 0);
+    setError(false);
+  }, [value]);
+
+  const handleSave = () => {
     const newValue = parseFloat(editValue) || 0;
-    setIsSaving(true);
-    await onSave(newValue);
-    setIsSaving(false);
+
+    // 🔥 instant UI update
+    setDisplayValue(newValue);
+    setError(false);
     setIsEditing(false);
+
+    onSave(newValue).catch(() => {
+      setError(true);
+      setDisplayValue("ERR");
+    });
   };
 
   const handleCancel = () => {
-    setEditValue(value || 0);
+    setEditValue(displayValue || 0);
     setIsEditing(false);
   };
 
@@ -157,49 +159,38 @@ const NumberCell = ({ value, onSave }) => {
               inputWrapper: "h-6 p-0 m-0 min-h-0"
             }}
             autoFocus
-            isDisabled={isSaving}
           />
         </div>
-        <div className="flex items-center justify-end gap-1">
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="success" 
-            onPress={handleSave}
-            className="h-6 min-h-0 w-14 m-0 bg-success-soft"
-            isLoading={isSaving}
-          >
-            {!isSaving && <Check size={12} />}
+
+        <div className="flex items-center justify-between gap-0 px-2">
+          <Button size="" isIconOnly className="bg-success m-0 p-0 w-5 h-5" onPress={handleSave}>
+            <Check  />
           </Button>
-          <Button 
-            size="sm" 
-            isIconOnly 
-            variant="soft" 
-            color="danger" 
-            onPress={handleCancel}
-            className="h-6 min-h-0 w-14 m-0 bg-danger-soft"
-            isDisabled={isSaving}
-          >
-            <X size={12} />
+
+          <Button size="sm" isIconOnly className="bg-danger m-0 p-0 w-5 h-5" onPress={handleCancel}>
+            <X />
           </Button>
         </div>
       </div>
     );
   }
 
-  const displayValue = value === 0 ? '0' : (value || '0');
-  
   return (
     <div className="flex items-center justify-end gap-2 group">
-      <span className="font-mono cursor-pointer" onClick={() => setIsEditing(true)}>
+      <span
+        className={`font-mono cursor-pointer ${
+          error ? "text-red-500 font-medium" : ""
+        }`}
+        onClick={() => setIsEditing(true)}
+      >
         {displayValue}
       </span>
+
       <Button
         isIconOnly
         size="sm"
         variant="light"
-        className="opacity-0 group-hover:opacity-100 transition-opacity"
+        className="opacity-0 group-hover:opacity-100"
         onPress={() => setIsEditing(true)}
       >
         <Pencil size={12} />
@@ -209,7 +200,7 @@ const NumberCell = ({ value, onSave }) => {
 };
 
 // Text cell - editable inline
-const TextCell = ({ value, onSave, isNarrow = false, isTextarea = false }) => {
+const TextCell = ({ value, onSave, isNarrow = false, isTextarea = false, label = "Value" }) => {
   const state = useOverlayState({ defaultOpen: false });
 
   const [editValue, setEditValue] = useState(value || "");
@@ -289,7 +280,11 @@ const TextCell = ({ value, onSave, isNarrow = false, isTextarea = false }) => {
                 <>
                   <Modal.CloseTrigger />
 
-
+                  <Modal.Header>
+                    <Modal.Heading className="text-sm font-semibold">
+                      Edit {label}
+                    </Modal.Heading>
+                    </Modal.Header>
                   <Modal.Body className="p-0 m-0">
                     {isTextarea ? (
                       <TextArea
@@ -602,6 +597,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                               value={row.poNumber}
                               onSave={(newValue) => handleUpdateShipment(row.shipmentId, 'poNumber', newValue)}
                               isNarrow={true}
+                              label="PO Number"
                             />
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
@@ -611,6 +607,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                               value={row.salesOrder}
                               onSave={(newValue) => handleUpdateShipment(row.shipmentId, 'salesOrder', newValue)}
                               isNarrow={true}
+                              label="Sales Order"
                             />
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
@@ -620,6 +617,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                               value={row.carrier}
                               onSave={(newValue) => handleUpdateShipment(row.shipmentId, 'carrier', newValue)}
                               isNarrow={true}
+                              label="Carrier"
                             />
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
@@ -632,6 +630,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                               value={row.notes}
                               onSave={(newValue) => handleUpdateShipment(row.shipmentId, 'notes', newValue)}
                               isTextarea={true}
+                              label="Notes"
                             />
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
