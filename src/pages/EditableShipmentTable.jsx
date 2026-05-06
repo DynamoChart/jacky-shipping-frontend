@@ -4,6 +4,127 @@ import { Pencil, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { Modal } from "@heroui/react";
 import { useOverlayState } from "@heroui/react";
+
+import {
+  DatePicker,
+  DateField,
+  Calendar,
+  TimeField,
+} from "@heroui/react";
+
+const PickupTimeCell = ({ value, onSave }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [displayValue, setDisplayValue] = useState(value || "");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setDisplayValue(value || "");
+    setError(false);
+  }, [value]);
+
+
+  const formatDate = (val) => {
+    if (!val) return "—";
+
+    const d = new Date(val);
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+
+    return `${day} ${month} ${hours}:${minutes}`;
+  };
+
+  const handleChange = (val) => {
+    const newValue = val?.toString();
+
+    // 🔥 instant UI update
+    setDisplayValue(newValue);
+    setError(false);
+    setIsEditing(false);
+
+    onSave(newValue).catch(() => {
+      setError(true);
+      setDisplayValue("FAILED");
+    });
+  };
+
+  if (isEditing) {
+    return (
+      <div className="p-1">
+        <DatePicker
+          granularity="minute"
+          hourCycle={24}
+          autoFocus
+          onChange={handleChange}
+        >
+          {({ state }) => (
+            <>
+              <DateField.Group>
+                <DateField.Input>
+                  {(segment) => (
+                    <DateField.Segment segment={segment} />
+                  )}
+                </DateField.Input>
+
+                <DateField.Suffix>
+                  <DatePicker.Trigger>
+                    <DatePicker.TriggerIndicator />
+                  </DatePicker.Trigger>
+                </DateField.Suffix>
+              </DateField.Group>
+
+              <DatePicker.Popover>
+                <Calendar>
+                  <Calendar.Grid>
+                    <Calendar.GridBody>
+                      {(date) => <Calendar.Cell date={date} />}
+                    </Calendar.GridBody>
+                  </Calendar.Grid>
+                </Calendar>
+
+                <TimeField
+                  hourCycle={24}
+                  value={state.timeValue}
+                  onChange={(v) => state.setTimeValue(v)}
+                >
+                  <TimeField.Group>
+                    <TimeField.Input>
+                      {(segment) => (
+                        <TimeField.Segment segment={segment} />
+                      )}
+                    </TimeField.Input>
+                  </TimeField.Group>
+                </TimeField>
+              </DatePicker.Popover>
+            </>
+          )}
+        </DatePicker>
+
+        <div className="flex gap-1 mt-1">
+          <Button
+            size="sm"
+            isIconOnly
+            color="danger"
+            onPress={() => setIsEditing(false)}
+          >
+            <X size={12} />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`cursor-pointer ${error ? "text-red-500 font-medium" : ""}`}
+      onClick={() => setIsEditing(true)}
+    >
+      {formatDate(displayValue)}
+    </div>
+  );
+};
 const STATUS_OPTIONS = [
   { id: "Shipped Full", name: "Shipped Full", color: "success" },
   { id: "Shipped Partial", name: "Shipped Partial", color: "warning" },
@@ -512,7 +633,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
         ) : (
           <Table aria-label="Shipment details table">
             <Table.ScrollContainer className="max-h-[600px]">
-              <Table.Content className="min-w-[2000px] table-fixed" style={{ tableLayout: 'fixed' }}>
+              <Table.Content className="min-w-[2020px] table-fixed" style={{ tableLayout: 'fixed' }}>
                 <Table.Header>
                   <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[100px]">Plant</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[130px]">Status</Table.Column>
@@ -526,9 +647,9 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                   <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Proj ($)</Table.Column>
                   <Table.Column align="end" className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Act ($)</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">PO Number</Table.Column>
-                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Sales Order</Table.Column>
-                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Carrier</Table.Column>
-                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[100px]">Time</Table.Column>
+                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[130px]">Sales Order</Table.Column>
+                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[130px]">Carrier</Table.Column>
+                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[140px]">Time</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[200px]">Notes</Table.Column>
                 </Table.Header>
 
@@ -622,7 +743,14 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                           ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
                         <Table.Cell className="px-3 py-1">
-                          {row.type === 'shipment' && row.pickupTime ? new Date(row.pickupTime).toLocaleDateString() : (row.type === 'empty' ? '—' : '')}
+                        {row.type === 'shipment' ? (
+                          <PickupTimeCell
+                            value={row.pickupTime}
+                            onSave={(newValue) =>
+                              handleUpdateShipment(row.shipmentId, 'pickupTime', newValue)
+                            }
+                          />
+                        ) : row.type === 'empty' ? '—' : ''}
                         </Table.Cell>
                         <Table.Cell className="max-w-xs truncate px-3 py-1" title={row.notes}>
                           {row.type === 'shipment' ? (
