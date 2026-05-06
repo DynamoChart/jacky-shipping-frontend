@@ -19,7 +19,7 @@ import Kpi from "./Kpi";
 import { Plus } from "@gravity-ui/icons";
 import { toast } from "react-toastify";
 import ShipmentsTable from "./ShipmentsTable";
-export default function Shipments() {
+export default function Shipments({isDark}) {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -443,7 +443,7 @@ await fetchShipments(); // 🔥 THIS updates table
       <BulkShipments onSuccess={fetchShipments} />
       </div>
       <Kpi shipments={shipments} />
-      <ShipmentsTable shipments={shipments}  onRefresh={fetchShipments}  />
+      <ShipmentsTable shipments={shipments} isDark={isDark}  onRefresh={fetchShipments}  />
     </>
   );
 }

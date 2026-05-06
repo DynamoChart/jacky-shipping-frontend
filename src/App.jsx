@@ -90,7 +90,7 @@ export default function App() {
                     <Routes>
                       <Route path="/" element={<Dashboard  isDark={isDark}/>} />
                       <Route path="/sheet" element={<Sheets   isDark={isDark}/>} />
-                      <Route path="/shipments" element={<Shipments />} />
+                      <Route path="/shipments" element={<Shipments isDark={isDark}/>} />
                       <Route path="/customers" element={<Customers />} />
                       
                       <Route path="/plants" element={<Plant />} />

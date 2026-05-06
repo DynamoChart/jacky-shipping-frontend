@@ -455,7 +455,7 @@ const TextCell = ({ value, onSave, isNarrow = false, isTextarea = false, label =
   );
 };
 
-function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCurrency, tableLoading, onRefresh }) {
+function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCurrency, tableLoading, onRefresh ,isDark}) {
   // Group shipments by plant with filtered data
   let currentShipments = shipments;
   if (selectedDate) {
@@ -664,7 +664,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
                                      row.type === 'empty' ? 'bg-gray-50 italic text-gray-400' : 
                                      'hover:bg-amber-50 transition-colors group'}
                       >
-                        <Table.Cell className={`${row.type === 'total' ? 'font-bold text-green-700' : 'font-medium text-gray-900'} px-3 py-1`}>
+                        <Table.Cell className={`${row.type === 'total' ? 'font-bold text-green-700' : isDark ? "text-gray-100" : "text-gray-800"} px-3 py-1`}>
                           {row.plant}
                         </Table.Cell>
                         <Table.Cell className="px-3 py-1">

@@ -428,6 +428,7 @@ if (loading) {
   selectedDate={selectedDate}
   PLANT_ORDER={PLANT_ORDER}
   formatCurrency={formatCurrency}
+  isDark={isDark}
   onRefresh={async () => {
     // Refresh all data after update
     await Promise.all([fetchShipments(), fetchPlants()]);

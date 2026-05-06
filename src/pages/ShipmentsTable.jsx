@@ -28,7 +28,7 @@ import { Drawer } from "@heroui/react";
 import { Pencil, Ellipsis,TrashBin } from "@gravity-ui/icons";
 import { toast } from "react-toastify";
 
-export default function ShipmentsTable({ shipments , onRefresh }) {
+export default function ShipmentsTable({ shipments , onRefresh, isDark }) {
 
 
 
@@ -276,7 +276,7 @@ export default function ShipmentsTable({ shipments , onRefresh }) {
         >
           {(s) => (
             <Table.Row key={s.key} className="hover:bg-amber-50 transition-colors">
-              <Table.Cell className="font-medium text-gray-800 px-3 py-1">
+              <Table.Cell className={`font-medium ${ isDark ? "text-gray-100" : "text-gray-800"} px-3 py-1`}>
                 {s.plant}
               </Table.Cell>
               <Table.Cell className="px-3 py-1">
