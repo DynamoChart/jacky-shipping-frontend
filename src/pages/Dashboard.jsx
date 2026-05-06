@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ChartPie,Factory } from "lucide-react";
 import { Chip, Drawer, Card, Button,Label } from "@heroui/react";
 import { ArrowShapeLeft, ArrowShapeRight,File,PersonSpeaker,Trolley} from "@gravity-ui/icons";
+import MonthTable from "./MonthTable";
+import WeekTable from "./WeekTable";
 import {
   format,
   startOfMonth,
@@ -111,11 +113,13 @@ function Dashboard({isDark}) {
 
 
   return (
-    <div className="p-4">
+    <div className="p-4 ">
 <KpiDash shipments={shipments} isDark={isDark}/>
-
+<MonthTable shipments={shipments} isDark={isDark} />
+<WeekTable shipments={shipments} isDark={isDark} />
+<div className="border rounded-4xl shadow-md p-6 ">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 ">
         <Chip onClick={prevMonth} variant="soft" size="lg" color="accent" className="hover:cursor-pointer">
           <ArrowShapeLeft />
         </Chip>
@@ -128,7 +132,18 @@ function Dashboard({isDark}) {
           <ArrowShapeRight />
         </Chip>
       </div>
+{/* ===== CALENDAR TITLE + DESCRIPTION ===== */}
+<div className="mb-4 mt-2">
+  <h3 className="text-lg font-semibold">
+    Monthly Shipping Calendar
+  </h3>
 
+  <p className={`text-sm mt-1 ${
+    isDark ? "text-gray-400" : "text-gray-500"
+  }`}>
+    Daily breakdown of projected vs actual shipments with variance tracking across the selected month
+  </p>
+</div>
       {/* CALENDAR */}
       <div className="grid grid-cols-7 gap-px  rounded-xl overflow-hidden">
 
@@ -192,6 +207,7 @@ function Dashboard({isDark}) {
     </div>
   );
 })}
+      </div>
       </div>
       <BarDash shipments={shipments} />
       {/* MODAL (FIXED CONTROLLED) */}
