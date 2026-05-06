@@ -176,32 +176,34 @@ const StatusCell = ({ value, onSave }) => {
           size="sm"
           selectedKey={editValue}
           onSelectionChange={(key) => setEditValue(key)}
+          className="w-30 h-6 p-0 m-0"
         >
-          <ComboBox.InputGroup>
-            <Input placeholder="Select status..." />
-            <ComboBox.Trigger />
+          <ComboBox.InputGroup className="h-6 p-0 m-0">
+            <Input placeholder="Select status..." className="h-5 p-1 m-0 text-xs" classNames={{ input: "h-6 p-0 m-0", inputWrapper: "h-6 p-0 m-0 min-h-0" }} />
+            <ComboBox.Trigger className="h-6 p-0 m-0"/>
           </ComboBox.InputGroup>
 
           <ComboBox.Popover>
-            <ListBox>
+            <ListBox className="max-h-48">
               {STATUS_OPTIONS.map((option) => (
-                <ListBox.Item key={option.id} id={option.id}>
-                  <Chip size="sm" color={option.color} variant="soft">
+                <ListBox.Item key={option.id} id={option.id} textValue={option.name}>
+                  <Chip size="sm" color={option.color} variant="soft" className="w-full">
                     {option.name}
                   </Chip>
+                  <ListBox.ItemIndicator />
                 </ListBox.Item>
               ))}
             </ListBox>
           </ComboBox.Popover>
         </ComboBox>
 
-        <div className="flex gap-1">
-          <Button size="sm" isIconOnly color="success" onPress={handleSave}>
-            <Check size={12} />
+        <div className="flex items-center justify-between mr-4 gap-1">
+          <Button size="sm" className="bg-success m-0 p-0 w-5 h-5" isIconOnly onPress={handleSave}>
+            <Check  />
           </Button>
 
-          <Button size="sm" isIconOnly color="danger" onPress={handleCancel}>
-            <X size={12} />
+          <Button size="sm" isIconOnly className="bg-danger m-0 p-0 w-5 h-5" onPress={handleCancel}>
+            <X  />
           </Button>
         </div>
       </div>
@@ -636,7 +638,7 @@ function EditableShipmentTable({ shipments, selectedDate, PLANT_ORDER, formatCur
               <Table.Content className="min-w-[2020px] table-fixed" style={{ tableLayout: 'fixed' }}>
                 <Table.Header>
                   <Table.Column isRowHeader className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[100px]">Plant</Table.Column>
-                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[130px]">Status</Table.Column>
+                  <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[160px]">Status</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[120px]">Customer</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[100px]">Eng. #</Table.Column>
                   <Table.Column className="bg-gray-100 font-bold text-gray-700 px-3 py-1 w-[100px]">SAP Part</Table.Column>
