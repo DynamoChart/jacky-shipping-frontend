@@ -5,6 +5,7 @@ import { ChartPie,Factory } from "lucide-react";
 import { Chip, Drawer, Card, Button,Label } from "@heroui/react";
 import { ArrowShapeLeft, ArrowShapeRight,File,PersonSpeaker,Trolley} from "@gravity-ui/icons";
 import MonthTable from "./MonthTable";
+import MonthlyShipmentChart from "./MonthlyShipmentChart";
 import WeekTable from "./WeekTable";
 import {
   format,
@@ -116,6 +117,10 @@ function Dashboard({isDark}) {
     <div className="p-4 ">
 <KpiDash shipments={shipments} isDark={isDark}/>
 <MonthTable shipments={shipments} isDark={isDark} />
+<MonthlyShipmentChart
+  shipments={shipments}
+  isDark={isDark}
+/>
 <WeekTable shipments={shipments} isDark={isDark} />
 <div className="border rounded-4xl shadow-md p-6 ">
       {/* HEADER */}
